@@ -1,0 +1,5 @@
+class main {
+            void foo() {
+                a := 5;
+            }
+        }

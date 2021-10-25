@@ -1,0 +1,1 @@
+Program([ClassDecl(Id(main),[MethodDecl(Id(foo),Instance,[],VoidType,Block([VarDecl(Id(n),BoolType),VarDecl(Id(s),ClassType(Id(Shape)),NullLiteral())],[Call(Id(s),Id(print),[])]))])])

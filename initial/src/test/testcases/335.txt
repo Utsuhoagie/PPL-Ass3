@@ -1,0 +1,7 @@
+class main {
+            void foo() {
+                int n;
+                
+                n := 5+7+9;
+            }
+        }

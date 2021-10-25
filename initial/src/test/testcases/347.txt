@@ -1,0 +1,16 @@
+class Circle extends Shape {
+            float radius;
+            static int count = 0;
+
+            Circle(float r) {
+                this.radius := r;
+            }
+
+            float getRadius() {
+                return this.radius;
+            }
+
+            static int getCount() {
+                return Circle.count;
+            }
+        }

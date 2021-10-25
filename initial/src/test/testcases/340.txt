@@ -1,0 +1,8 @@
+class main {
+            void foo() {
+                boolean n;
+                Shape s;
+                
+                s.print();
+            }
+        }

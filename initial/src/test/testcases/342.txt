@@ -1,0 +1,8 @@
+class main {
+            void foo() {
+                int[3] s = {2,4,6};
+                int index = 2, n = 1;
+                
+                n := s[index - n];
+            }
+        }

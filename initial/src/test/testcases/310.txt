@@ -1,0 +1,6 @@
+class main {
+            static int foo;
+            void foo(int a,b,c; float d) {
+
+            }
+        }

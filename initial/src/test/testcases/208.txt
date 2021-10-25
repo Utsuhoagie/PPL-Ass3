@@ -1,0 +1,15 @@
+
+            class Dog extends Animal {
+                static int count = 0;
+
+                int getCount() {
+                    return this.count;
+                }
+            }
+
+            class Person {
+                int countDogs() {
+                    return Dog.getCount();
+                }
+            }
+        

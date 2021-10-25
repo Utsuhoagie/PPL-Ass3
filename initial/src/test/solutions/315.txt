@@ -1,0 +1,1 @@
+Program([ClassDecl(Id(main),[MethodDecl(Id(foo),Instance,[param(Id(a),IntType)],FloatType,Block([],[If(BooleanLit(True),AssignStmt(Id(a),IntLit(5)),Return(FloatLit(5.5)))]))])])

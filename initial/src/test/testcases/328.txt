@@ -1,0 +1,8 @@
+class main {
+            void foo() {
+                int n;
+                int[3] arr = {2,3,4};
+                
+                n := arr[1];
+            }
+        }

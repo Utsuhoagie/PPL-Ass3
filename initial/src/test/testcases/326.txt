@@ -1,0 +1,7 @@
+class main {
+            void foo() {
+                int[2] s;
+                
+                s := {4,5};
+            }
+        }

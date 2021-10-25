@@ -1,0 +1,14 @@
+
+            class Tank {
+                int HP = 100;
+                static int[2] damages;
+                static void initDamage() {
+                    this.damages[0] := 55;
+                    this.damages[1] := 75;
+                }
+
+                void attack() {
+                    other.HP := other.HP - Tank.damages[0];
+                }
+            }
+        

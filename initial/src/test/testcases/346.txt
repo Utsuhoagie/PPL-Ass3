@@ -1,0 +1,10 @@
+class main extends thing{
+            static int count = 5*2;
+
+            int foo(int count) {
+                int n;
+                
+                n := count * 2;
+                return n;
+            }
+        }

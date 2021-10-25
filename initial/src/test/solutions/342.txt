@@ -1,0 +1,1 @@
+Program([ClassDecl(Id(main),[MethodDecl(Id(foo),Instance,[],VoidType,Block([VarDecl(Id(s),ArrayType(3,IntType),[IntLit(2),IntLit(4),IntLit(6)]),VarDecl(Id(index),IntType,IntLit(2)),VarDecl(Id(n),IntType,IntLit(1))],[AssignStmt(Id(n),ArrayCell(Id(s),BinaryOp(-,Id(index),Id(n))))]))])])

@@ -1,0 +1,8 @@
+class main {
+            float foo(int a) {
+                if true then
+                    a := 5;
+                else
+                    return 5.5;
+            }
+        }

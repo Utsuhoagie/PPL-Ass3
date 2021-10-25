@@ -1,0 +1,7 @@
+class main {
+            void foo() {
+                boolean n;
+                
+                n := !false;
+            }
+        }

@@ -1,0 +1,6 @@
+class main {
+            void foo(int a) {
+                if true then
+                    a := 5;
+            }
+        }

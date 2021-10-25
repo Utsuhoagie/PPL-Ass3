@@ -1,0 +1,9 @@
+
+            class Dog extends Animal {
+                static int count = 0;
+
+                void foo() {
+                    this.count := 5;
+                }
+            }
+        

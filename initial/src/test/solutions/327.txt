@@ -1,0 +1,1 @@
+Program([ClassDecl(Id(main),[MethodDecl(Id(foo),Instance,[],VoidType,Block([VarDecl(Id(n),IntType),VarDecl(Id(s),ClassType(Id(Shape)),NullLiteral())],[AssignStmt(Id(n),FieldAccess(Id(s),Id(width)))]))])])

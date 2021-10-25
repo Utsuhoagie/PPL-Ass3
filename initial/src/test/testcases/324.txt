@@ -1,0 +1,7 @@
+class main {
+            void foo() {
+                Shape s;
+                
+                s := this;
+            }
+        }

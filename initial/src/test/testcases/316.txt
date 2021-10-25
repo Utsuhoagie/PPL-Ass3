@@ -1,0 +1,6 @@
+class main {
+            void foo(int a) {
+                for b := 0 to 10 do
+                    a := 5;
+            }
+        }

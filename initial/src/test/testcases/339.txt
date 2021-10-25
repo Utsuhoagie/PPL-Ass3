@@ -1,0 +1,8 @@
+class main {
+            void foo() {
+                boolean n;
+                int n1 = 5, n2 = 8;
+                
+                n := n1 > n2;
+            }
+        }

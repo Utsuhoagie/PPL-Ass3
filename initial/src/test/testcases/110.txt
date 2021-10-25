@@ -1,0 +1,1 @@
+/*block comment on 1 line!!*/int a

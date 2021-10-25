@@ -1,0 +1,9 @@
+class main {
+            void foo() {
+                int[3] arr = {2,4,6};
+                Shape s = new Shape();
+                int n = 1;
+                
+                n := arr[s.getWidth() - n];
+            }
+        }

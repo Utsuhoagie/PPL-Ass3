@@ -1,0 +1,8 @@
+class main {
+            void foo() {
+                int n;
+                Shape s;
+
+                n := s.width;
+            }
+        }

@@ -1,0 +1,18 @@
+
+            class Dog extends Animal {
+                static int count = 0;
+                int age;
+                float height, weight;
+
+                void addNew(int age; float height, weight) {
+                    this.count := this.count + 1;
+                    this.age := age;
+                    this.height := height;
+                    this.weight := weight;
+                }
+
+                int getCount() {
+                    return this.count;
+                }
+            }
+        

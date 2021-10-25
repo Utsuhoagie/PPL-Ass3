@@ -1,0 +1,3 @@
+class main {
+            int[5] a;
+        }
