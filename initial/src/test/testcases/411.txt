@@ -1,0 +1,9 @@
+
+            class Shape {
+                float length;
+                float width;
+            }
+            class Rectangle extends Shape {
+
+            }
+        

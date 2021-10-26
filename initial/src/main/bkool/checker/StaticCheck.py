@@ -18,11 +18,41 @@ class Symbol:
         self.mtype = mtype
         self.value = value
 
+# ====== Helper functions ===================
+
+def getObjValue(obj) -> str:
+    #if type(obj) in [IntLiteral, FloatLiteral, StringLiteral, BooleanLiteral, ArrayLiteral]:
+    if isinstance(obj, Expr):
+        return str(obj)
+
+def getObjName(obj) -> str:
+    if obj is None:
+        return "None"
+    return str(obj)
+    #return type(obj).__name__ + "(" + str(obj) + ")"
+
+def printDict(refEnv: dict, spaces: int, isStatic: bool):
+
+    quotes = "'" if isStatic else ""
+    for key in refEnv:
+        if type(refEnv[key]) is not dict:
+            line = " "*spaces + quotes + ("%s%s: %s" % (key, quotes, getObjName(refEnv[key])))
+            print(line)
+        else:
+            line = " "*spaces + quotes + ("%s%s: {" % (key, quotes))
+            print(line)
+            printDict(refEnv[key], spaces + 4, isStatic)
+            print(" "*spaces + "}")
+
+
 # ====== GetRefEnv visitor ==================
 
-class GetRefEnv(BaseVisitor):
-    def visitProgram(self, ctx, refEnv) -> dict:
 
+# Get environment of class + attr + method declarations
+# and also catch some Redeclared/Undeclared
+class GetRefEnv(BaseVisitor):
+
+    def visitProgram(self, ctx, refEnv) -> dict:
         # create new refEnv
         refEnv = {}
         [self.visit(classDecl, refEnv) for classDecl in ctx.decl]
@@ -33,15 +63,19 @@ class GetRefEnv(BaseVisitor):
         # and if parents aren't declared, raise Undeclared(Class(),...)
         for classDecl in ctx.decl:
             if classDecl.parentname:
-                parentName = self.visit(classDecl.parentname, refEnv)
+                className = classDecl.classname.name
+                parentName = classDecl.parentname.name
 
                 # check if parent is declared
                 if parentName not in refEnv:
                     raise Undeclared(Class(), parentName)
 
                 tempParentEnv = refEnv[parentName].copy()
-                tempParentEnv.update(refEnv[parentName])
-                refEnv[parentName] = tempParentEnv
+                tempParentEnv.update(refEnv[className])
+                refEnv[className] = tempParentEnv
+
+        print("\n\nin GetRefEnv, refEnv = ")
+        printDict(refEnv, 4, False)
 
         return refEnv
 
@@ -50,75 +84,73 @@ class GetRefEnv(BaseVisitor):
         # new refEnv
         # key = this class' name AS A STRING, NOT AS Id()
         # val = all available IDs in this class
-        className = self.visit(ctx.classname, refEnv)
+        className = ctx.classname.name
         if className in refEnv:
             raise Redeclared(Class(), className)
         refEnv[className] = {}
         [self.visit(memDecl, refEnv[className]) for memDecl in ctx.memlist]
 
     def visitAttributeDecl(self, ctx, refEnv):
-        kindInsStat = self.visit(ctx.kind, refEnv)
+        kind = ctx.kind
         storeDecl = self.visit(ctx.decl, refEnv)
 
-        if type(storeDecl) is tuple:
-            raise Redeclared(Attribute(), storeDecl[1])
+        if type(storeDecl) is str:
+            raise Redeclared(Attribute(), storeDecl)
+        else:
+            # storeDecl is tuple of (name, type)
+
+            if type(storeDecl) is ConstDecl and storeDecl[2] is None:
+                raise IllegalConstantExpression(None)
+
+            refEnv[storeDecl[0]] = {
+                'type': storeDecl[1],
+                'kind': kind
+                #'init': storeDecl[2]
+            }
 
     def visitVarDecl(self, ctx, refEnv):
-        varName = self.visit(ctx.variable, refEnv)
+        varName = ctx.variable.name
+        varType = ctx.varType
+        varInit = ctx.varInit
         
         if varName in refEnv:
             # can't raise, because this must be Attribute() instead
             # just return a flag
             # raise Redeclared(Variable(), varName)
-            return ("redeclared", varName)
+            return varName
 
-        refEnv[varName] = ctx.varType
+        return (varName, varType, varInit)
+
+        
 
     def visitConstDecl(self, ctx, refEnv):
-        constName = self.visit(ctx.constant, refEnv)
+        constName = ctx.constant.name
+        constType = ctx.constType
+        constInit = ctx.value
 
         if constName in refEnv:
             # can't raise, because this must be Attribute() instead
             # just return a flag
             # raise Redeclared(Constant(), constName)
-            return ("redeclared", constName)
+            return constName
 
-        refEnv[constName] = ctx.constType
+        return (constName, constType, constInit)
 
-    # def visitFuncDecl(self, ctx, refEnv):
-    #     if ctx.name in refEnv:
-    #         raise Redeclared(ctx.name)
-            
-    #     refEnv[ctx.name] = {}
+        
 
+    def visitMethodDecl(self, ctx, refEnv):
+        methodName = ctx.name.name
+        methodKind = ctx.kind
+        methodReturnType = ctx.returnType
 
-    def visitId(self, ctx, refEnv) -> str:
-        return ctx.name
+        if methodName in refEnv:
+            raise Redeclared(Method(), methodName)
+        
+        refEnv[methodName] = {
+            'returnType': methodReturnType,
+            'kind': methodKind
+        }
 
-
-    def visitIntType(self, ctx, refEnv) -> IntType:
-        return ctx
-    
-    def visitFloatType(self, ctx, refEnv) -> FloatType:
-        return ctx
-    
-    def visitBoolType(self, ctx, refEnv) -> BoolType:
-        return ctx
-    
-    def visitStringType(self, ctx, refEnv) -> StringType:
-        return ctx
-    
-    def visitVoidType(self, ctx, refEnv) -> VoidType:
-        return ctx
-    
-    def visitArrayType(self, ctx, refEnv) -> ArrayType:
-        size = ctx.size
-        eleType = self.visit(ctx.eleType, refEnv)
-        return ArrayType(size, eleType)
-    
-    def visitClassType(self, ctx, refEnv) -> ClassType:
-        className = self.visit(ctx.classname, refEnv)
-        return ClassType(className)
 
 
 # ===============================================
@@ -135,7 +167,7 @@ class StaticChecker(BaseVisitor):
         self.ctx = ctx
     
     def check(self):
-        return self.visit(self.ctx,StaticChecker.global_envi)
+        return self.visit(self.ctx, StaticChecker.global_envi)
 
     # =============================================================
 
@@ -145,9 +177,14 @@ class StaticChecker(BaseVisitor):
         # with attributes and methods inside
         refEnv = GetRefEnv().visit(ctx, None)
 
-        print("refEnv = %s\n" % refEnv)
+        # print("\nrefEnv = ")
+        # printDict(refEnv, 4)
 
-        # return [self.visit(classDecl,refEnv) for classDecl in ctx.decl]
+        print("\nin StaticChecker")
+
+        [self.visit(classDecl, refEnv) for classDecl in ctx.decl]
+
+        
 
 
     # ---- Classes ------
@@ -157,19 +194,59 @@ class StaticChecker(BaseVisitor):
         #     if ctx.parentname.name not in map(lambda x: x.name, refEnv):
         #         raise Undeclared(Class(), ctx.parentname.name)
         # return list(map(lambda x: self.visit(x, refEnv),ctx.memlist)) 
-        if ctx.parentname:
-            for className in refEnv:
-                if ctx.parentname.name != className:
-                    raise Undeclared(Class(), ctx.parentname.name)
+
+        # if ctx.parentname:
+        #     for className in refEnv:
+        #         if ctx.parentname.name != className:
+        #             raise Undeclared(Class(), ctx.parentname.name)
+
+        
+        # No need to do all that!
+        clsRefEnv = {
+            'current': ctx.classname,
+            'global': refEnv
+        }
+
+        print(" "*4 + "clsRefEnv: ")
+        printDict(clsRefEnv, 8, True)
+
+        [self.visit(memDecl, clsRefEnv) for memDecl in ctx.memlist]
+
 
     def visitMethodDecl(self, ctx, refEnv):
+
+        mthdRefEnv = {
+            'current': refEnv['current'],
+            'global': refEnv['global'],
+            'local': {}
+        }
+
+        # visit param: List[VarDecl]
+        for param in ctx.param:
+            self.visit(param, mthdRefEnv['local'])
+
+        print(" "*8 + "mthdRefEnv: ")
+        printDict(mthdRefEnv, 12, True)
+
+        #[GetRefEnv().visit(ctx.)]
         return None
     
     def visitAttributeDecl(self, ctx, refEnv):
+        self.visit(ctx.decl, refEnv)
         return None
 
     def visitVarDecl(self, ctx, refEnv):
-        return None
+        varName = ctx.variable.name     # string
+        varType = ctx.varType           # Type
+        varInit = self.visit(ctx.varInit, refEnv) if ctx.varInit else None
+
+        if varName in refEnv:
+            raise Redeclared(Variable(), varName)
+        else:
+            refEnv[varName] = {
+                'type': varType,
+                'init': varInit
+            }
     
     def visitConstDecl(self, ctx, refEnv):
         return None
@@ -228,6 +305,30 @@ class StaticChecker(BaseVisitor):
     def visitFieldAccess(self, ctx, refEnv):
         return None
 
+
+    # --- Literal -----
+
+    def visitIntLiteral(self, ctx, refEnv):
+        return None
+    
+    def visitFloatLiteral(self, ctx, refEnv):
+        return None
+    
+    def visitBooleanLiteral(self, ctx, refEnv):
+        return None
+    
+    def visitStringLiteral(self, ctx, refEnv):
+        return None
+    
+    def visitNullLiteral(self, ctx, refEnv):
+        return None
+    
+    def visitSelfLiteral(self, ctx, refEnv):
+        return None 
+
+    def visitArrayLiteral(self, ctx, refEnv):
+        return None 
+    
     
     # ---- Stmt -----
 
@@ -256,26 +357,3 @@ class StaticChecker(BaseVisitor):
         return None
     
 
-    # --- Literal -----
-
-    def visitIntLiteral(self, ctx, refEnv):
-        return None
-    
-    def visitFloatLiteral(self, ctx, refEnv):
-        return None
-    
-    def visitBooleanLiteral(self, ctx, refEnv):
-        return None
-    
-    def visitStringLiteral(self, ctx, refEnv):
-        return None
-    
-    def visitNullLiteral(self, ctx, refEnv):
-        return None
-    
-    def visitSelfLiteral(self, ctx, refEnv):
-        return None 
-
-    def visitArrayLiteral(self, ctx, refEnv):
-        return None 
-    

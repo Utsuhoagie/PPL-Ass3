@@ -1,0 +1,8 @@
+
+            class Shape {
+                float length = 5.5;
+                void foo() {
+
+                }
+            }
+        

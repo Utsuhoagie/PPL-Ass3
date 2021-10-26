@@ -37,7 +37,7 @@ class CheckerSuite(unittest.TestCase):
             }
         """
 
-        expect = """Redeclared Variable: x"""
+        expect = """Redeclared Attribute: x"""
         self.assertTrue(TestChecker.test(input, expect, 400))
 
 
@@ -65,23 +65,90 @@ class CheckerSuite(unittest.TestCase):
         expect = """Undeclared Class: B"""
         self.assertTrue(TestChecker.test(input, expect, 402))
 
+    def test3(self):
+        input = """
+            class A {
+                int var1;
+                bool var1;
+            }
+        """
+
+        expect = """Redeclared Attribute: var1"""
+        self.assertTrue(TestChecker.test(input, expect, 403))
+
+    def test4(self):
+        input = """
+            class A {
+                int foo() {
+
+                }
+                
+                float foo() {
+
+                }
+            }
+        """
+
+        expect = """Redeclared Method: foo"""
+        self.assertTrue(TestChecker.test(input, expect, 404))
+
     def test10(self):
         input = """
             class Shape {
-                float length,width;
-                float getArea() {
-                }
-                Shape(float length,width){
-                    this.length := length;
-                    this.width := width;
+                float length, width;
+                float getArea() {}
+            }
+            class Rectangle extends Shapeee {
+                int length;
+            }
+        """
+        expect = """Undeclared Class: Shapeee"""
+        self.assertTrue(TestChecker.test(input, expect, 410)) 
+
+
+    def test11(self):
+        input = """
+            class Shape {
+                float length;
+                float width;
+            }
+            class Rectangle extends Shape {
+
+            }
+        """
+        expect = """"""
+        self.assertTrue(TestChecker.test(input, expect, 411)) 
+
+    def test12(self):
+        input = """
+            class Shape {
+                float length = 5.5;
+                void foo() {
+
                 }
             }
-                class Rectangle extends Shape {
-                float getArea(){
-        
-                return this.length * this.width;
-                }
-                }
         """
-        expect = """Program([ClassDecl(Id(Shape),[AttributeDecl(Instance,VarDecl(Id(length),FloatType)),AttributeDecl(Instance,VarDecl(Id(width),FloatType)),MethodDecl(Id(getArea),Instance,[],FloatType,Block([],[])),MethodDecl(Id(<init>),Instance,[param(Id(length),FloatType),param(Id(width),FloatType)],Block([],[AssignStmt(FieldAccess(Self(),Id(length)),Id(length)),AssignStmt(FieldAccess(Self(),Id(width)),Id(width))]))]),ClassDecl(Id(Rectangle),Id(Shape),[MethodDecl(Id(getArea),Instance,[],FloatType,Block([],[Return(BinaryOp(*,FieldAccess(Self(),Id(length)),FieldAccess(Self(),Id(width))))]))])])"""
-        self.assertTrue(TestChecker.test(input, expect, 410)) 
+        expect = """"""
+        self.assertTrue(TestChecker.test(input, expect, 412))
+
+
+
+    # def test20(self):
+    #     input = """
+    #         class Shape {
+    #             float length;
+    #             float width = 0.0;
+    #             float getArea() {}
+    #             Shape(float length,width) {
+    #                 this.length := length;
+    #                 this.width := width;
+    #             }
+    #         }
+    #         class Rectangle extends Shape {
+    #             float getArea() {
+    #                 return this.length * this.width;
+    #             }
+    #         }
+    #     """
+    #     expect = """"""
+    #     self.assertTrue(TestChecker.test(input, expect, 420)) 

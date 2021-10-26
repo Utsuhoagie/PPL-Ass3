@@ -1,0 +1,16 @@
+
+            class Shape {
+                float length;
+                float width = 0.0;
+                float getArea() {}
+                Shape(float length,width) {
+                    this.length := length;
+                    this.width := width;
+                }
+            }
+            class Rectangle extends Shape {
+                float getArea() {
+                    return this.length * this.width;
+                }
+            }
+        
