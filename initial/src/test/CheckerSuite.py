@@ -3,27 +3,6 @@ from TestUtils import TestChecker
 from AST import *
 
 class CheckerSuite(unittest.TestCase):
-    # def test_undeclared_function(self):
-    #     """Simple program: int main() {} """
-    #     input = """int main() {foo();}"""
-    #     expect = "Undeclared Function: foo"
-    #     self.assertTrue(TestChecker.test(input,expect,400))
-
-    # def test_diff_numofparam_stmt(self):
-    #     """More complex program"""
-    #     input = """int main () {
-    #         putIntLn();
-    #     }"""
-    #     expect = "Type Mismatch In Statement: CallExpr(Id(putIntLn),List())"
-    #     self.assertTrue(TestChecker.test(input,expect,401))
-    
-    # def test_diff_numofparam_expr(self):
-    #     """More complex program"""
-    #     input = """int main () {
-    #         putIntLn(getInt(4));
-    #     }"""
-    #     expect = "Type Mismatch In Expression: CallExpr(Id(getInt),List(IntLiteral(4)))"
-    #     self.assertTrue(TestChecker.test(input,expect,402))
 
     # def test_undeclared_function_use_ast(self):
     #     """Simple program: int main() {} """
@@ -51,14 +30,40 @@ class CheckerSuite(unittest.TestCase):
     #     self.assertTrue(TestChecker.test(input,expect,405))
     
     def test0(self):
+        input  ="""
+            class A {
+                int x;
+                float x;
+            }
+        """
+
+        expect = """Redeclared Variable: x"""
+        self.assertTrue(TestChecker.test(input, expect, 400))
+
+
+    def test1(self):
         input = """
-            class a extends b {
+            class a {
+
+            }
+
+            class a {
                 
             }
         """
 
-        expect = """Undeclared Class: b"""
-        self.assertTrue(TestChecker.test(input, expect, 400))
+        expect = """Redeclared Class: a"""
+        self.assertTrue(TestChecker.test(input, expect, 401))
+
+    def test2(self):
+        input = """
+            class A extends B {
+                
+            }
+        """
+
+        expect = """Undeclared Class: B"""
+        self.assertTrue(TestChecker.test(input, expect, 402))
 
     def test10(self):
         input = """

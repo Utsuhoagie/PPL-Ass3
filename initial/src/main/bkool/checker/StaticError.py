@@ -38,6 +38,8 @@ class Identifier(Kind):
     def __str__(self):
         return "Identifier"
 
+# -----------------------
+
 class StaticError(Exception):
     pass
 @dataclass

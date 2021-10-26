@@ -28,7 +28,7 @@ class ASTGeneration(BKOOLVisitor):
         # program         : classDeclList EOF;
 
 
-        print("\n\n\t\t in visitProgram")
+        # print("\n\n\t\t in visitProgram")
         classDeclList = self.visit(ctx.classDeclList())     # this is probably List
         return Program(classDeclList)
 
@@ -37,7 +37,7 @@ class ASTGeneration(BKOOLVisitor):
         #                 | classDecl;
 
 
-        print("\t\t in visitClassDeclList")
+        # print("\t\t in visitClassDeclList")
         classDecl = self.visit(ctx.classDecl())
         if ctx.getChildCount() == 2:
             classDeclList = self.visit(ctx.classDeclList())
@@ -48,13 +48,13 @@ class ASTGeneration(BKOOLVisitor):
         # classDecl       : CLASS ID EXTENDS ID LP (memberList | ) RP
         #                 | CLASS ID LP (memberList | ) RP;
         
-        print("\t\t in visitClassDecl")
+        # print("\t\t in visitClassDecl")
         id = Id(ctx.getChild(1).getText())   # self.visit(ctx.getChild(1))
-        print("\t\t\t" + str(id))
+        # print("\t\t\t" + str(id))
         memberList = []
         idParent = None
         if ctx.memberList():
-            print("\t\t\tthere is memberList in classDecl")
+            # print("\t\t\tthere is memberList in classDecl")
             memberList = self.visit(ctx.memberList())
         
         if ctx.EXTENDS():
@@ -66,7 +66,7 @@ class ASTGeneration(BKOOLVisitor):
         # memberList      : member memberList
         #                 | member;
 
-        print("\t\t in visitMemberList")
+        # print("\t\t in visitMemberList")
         member = self.visit(ctx.member())
         if ctx.getChildCount() == 2:
             memberList = self.visit(ctx.memberList())
@@ -88,23 +88,23 @@ class ASTGeneration(BKOOLVisitor):
         #                 | (STATIC | ) returnType method
         #                 | constructor;
 
-        print("\t\t in visitMember")
+        # print("\t\t in visitMember")
         if ctx.getChildCount() == 4:
-            print("\t\t\t in member, attribute")
+            # print("\t\t\t in member, attribute")
 
             attrKeyword = self.visit(ctx.attrKeyword())
-            print("\t\t\t keyword = " + str(attrKeyword))
+            # print("\t\t\t keyword = " + str(attrKeyword))
 
             attrType = self.visit(ctx.attrType())   # 1 type
-            print("\t\t\t attrType = " + str(attrType))
+            # print("\t\t\t attrType = " + str(attrType))
 
             attrList = self.visit(ctx.attrList())   # multiple tuples of (Id, Expr = None)
-            print("\t\t\t attrList = " + str(attrList))
+            # print("\t\t\t attrList = " + str(attrList))
             
             kind = Static() if "static" in attrKeyword else Instance()
             if "final" in attrKeyword:
                 if type(attrType) is ClassType:
-                    print("-=-=-==-=-=-=-=-===-=-=-=-=-=-=-=-==-=-=-=-=-==-=-=-=-=-===========================")
+                    # print("-=-=-==-=-=-=-=-===-=-=-=-=-=-=-=-==-=-=-=-=-==-=-=-=-=-===========================")
                     AttrDeclListClass = []
                     for idElem in attrList:
                         if idElem[1] == None:
@@ -116,7 +116,7 @@ class ASTGeneration(BKOOLVisitor):
                 return [AttributeDecl(kind, ConstDecl(idElem[0], attrType, idElem[1])) for idElem in attrList]
             else:
                 if type(attrType) is ClassType:
-                    print("-=-=-==-=-=-=-=-===-=-=-=-=-=-=-=-==-=-=-=-=-==-=-=-=-=-===========================")
+                    # print("-=-=-==-=-=-=-=-===-=-=-=-=-=-=-=-==-=-=-=-=-==-=-=-=-=-===========================")
                     AttrDeclListClass = []
                     for idElem in attrList:
                         if idElem[1] == None:
@@ -145,9 +145,10 @@ class ASTGeneration(BKOOLVisitor):
 
         # attrKeyword     : STATIC FINAL | FINAL STATIC | STATIC | FINAL | ;
 
-        print("\t\t in visitAttrKeyword")
+        # print("\t\t in visitAttrKeyword")
         if ctx.getChildCount() > 0:
-            print("\t\t\t keyword = " + str(ctx.getChild(0)))
+            pass
+            # print("\t\t\t keyword = " + str(ctx.getChild(0)))
 
         if ctx.getChildCount() == 2:
             return (ctx.getChild(0).getText() + " " + ctx.getChild(0).getText()).lower()
@@ -486,8 +487,8 @@ class ASTGeneration(BKOOLVisitor):
         # blockStmt   : LP (blockBody | ) RP;
         if ctx.blockBody():
             blockBody = self.visit(ctx.blockBody())
-            print("\t\t\t in blockStmt")
-            #print("\t\t\t " + str(blockBody))
+            # print("\t\t\t in blockStmt")
+            ## print("\t\t\t " + str(blockBody))
             return Block(blockBody[0], blockBody[1])
         return Block([],[])
 
