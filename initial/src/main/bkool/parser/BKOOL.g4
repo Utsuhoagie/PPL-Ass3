@@ -216,7 +216,7 @@ methodInvokeStmt: exp DOT ID LB (argList | ) RB SEMI    // instance_method_invok
     ADD: '+';
     SUB: '-';
     MUL: '*';
-    DIV: '\'';
+    DIV: '\\';
     DIVF: '/';
     MOD: '%';
     NEQ: '!=';

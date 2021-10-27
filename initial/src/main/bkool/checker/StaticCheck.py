@@ -20,18 +20,13 @@ class Symbol:
 
 # ====== Helper functions ===================
 
-def getObjValue(obj) -> str:
-    #if type(obj) in [IntLiteral, FloatLiteral, StringLiteral, BooleanLiteral, ArrayLiteral]:
-    if isinstance(obj, Expr):
-        return str(obj)
-
 def getObjName(obj) -> str:
     if obj is None:
         return "None"
     return str(obj)
     #return type(obj).__name__ + "(" + str(obj) + ")"
 
-def printDict(refEnv: dict, spaces: int, isStatic: bool):
+def printDict(refEnv: dict, spaces: int, isStatic: bool = False):
 
     quotes = "'" if isStatic else ""
     for key in refEnv:
@@ -43,6 +38,75 @@ def printDict(refEnv: dict, spaces: int, isStatic: bool):
             print(line)
             printDict(refEnv[key], spaces + 4, isStatic)
             print(" "*spaces + "}")
+
+def isConstExpr(exp: Expr, baseExp: Expr, refEnv) -> bool:
+    if type(exp) is Id:
+        if refEnv['global'][refEnv['current'].name][exp.name]['mutable'] == 'var':
+            raise IllegalConstantExpression(baseExp)
+        elif refEnv['global'][refEnv['current'].name][exp.name]['mutable'] == 'const':
+            return True
+    elif isinstance(exp, Literal): # or isinstance(exp, Const)
+        return True
+    else:
+        if type(exp) is BinaryOp:
+            return isConstExpr(exp.left, baseExp, refEnv) and isConstExpr(exp.right, baseExp, refEnv)
+    return False
+
+def getExprType(exp: Expr, baseExp: Expr, refEnv) -> Type:
+    if isinstance(exp, Literal):
+        if type(exp) is IntLiteral:
+            return IntType()
+        elif type(exp) is FloatLiteral:
+            return FloatType()
+        elif type(exp) is BooleanLiteral:
+            return BoolType()
+        elif type(exp) is StringLiteral:
+            return StringType()
+        
+    else:
+        if type(exp) is BinaryOp:
+            t1 = getExprType(exp.left, baseExp, refEnv)
+            t2 = getExprType(exp.right, baseExp, refEnv)
+            op = exp.op
+
+            #print("here!!!! t1 = " + str(t1) + " and t1 equals IntType? %s" % (type(t1) == IntType) + " | t2 = " + str(t2))
+
+            if op in ['+','-','*']:
+                if type(t1) not in [IntType, FloatType] or type(t2) not in [IntType, FloatType]:
+                    raise TypeMismatchInExpression(exp)
+                elif type(t1) is FloatType or type(t2) is FloatType:
+                    return FloatType()
+                else:
+                    return IntType()
+            elif op in ['\\','%']:
+                if type(t1) is not IntType or type(t2) is not IntType:
+                    raise TypeMismatchInExpression(exp)
+                else:
+                    return IntType()
+            elif op in ['/']:
+                if type(t1) not in [IntType, FloatType] or type(t2) not in [IntType, FloatType]:
+                    raise TypeMismatchInExpression(exp)
+                else:
+                    return FloatType()
+
+            elif op in ['&&','||']:
+                if type(t1) is not BoolType or type(t2) is not BoolType:
+                    raise TypeMismatchInExpression(exp)
+                else:
+                    return BoolType()
+            
+            elif op in ['==','!=']:
+                if type(t1) not in [IntType, BoolType] or type(t2) not in [IntType, BoolType] or type(t1) != type(t2):
+                    raise TypeMismatchInExpression(exp)
+                else:
+                    return BoolType()
+            elif op in ['<','<=','>','>=']:
+                if type(t1) not in [IntType, FloatType] or type(t2) not in [IntType, FloatType]:
+                    raise TypeMismatchInExpression(exp)
+                else:
+                    return BoolType()
+            
+            
 
 
 # ====== GetRefEnv visitor ==================
@@ -99,12 +163,15 @@ class GetRefEnv(BaseVisitor):
         else:
             # storeDecl is tuple of (name, type)
 
-            if type(storeDecl) is ConstDecl and storeDecl[2] is None:
+            if type(ctx.decl) is ConstDecl and storeDecl[2] is None:
                 raise IllegalConstantExpression(None)
+
+            mutable = "var" if type(ctx.decl) is VarDecl else "const"
 
             refEnv[storeDecl[0]] = {
                 'type': storeDecl[1],
-                'kind': kind
+                'kind': kind,
+                'mutable': mutable
                 #'init': storeDecl[2]
             }
 
@@ -180,11 +247,13 @@ class StaticChecker(BaseVisitor):
         # print("\nrefEnv = ")
         # printDict(refEnv, 4)
 
-        print("\nin StaticChecker")
+        print("\n=====================================\nin StaticChecker")
 
         [self.visit(classDecl, refEnv) for classDecl in ctx.decl]
 
-        
+        print("\n" + "after visit, refEnv = ")
+        printDict(refEnv, 4)
+
 
 
     # ---- Classes ------
@@ -213,6 +282,7 @@ class StaticChecker(BaseVisitor):
         [self.visit(memDecl, clsRefEnv) for memDecl in ctx.memlist]
 
 
+
     def visitMethodDecl(self, ctx, refEnv):
 
         mthdRefEnv = {
@@ -232,25 +302,56 @@ class StaticChecker(BaseVisitor):
         return None
     
     def visitAttributeDecl(self, ctx, refEnv):
+        print("visiting attrDecl!")
         self.visit(ctx.decl, refEnv)
-        return None
 
     def visitVarDecl(self, ctx, refEnv):
         varName = ctx.variable.name     # string
         varType = ctx.varType           # Type
-        varInit = self.visit(ctx.varInit, refEnv) if ctx.varInit else None
+        varInit = self.visit(ctx.varInit, refEnv) if ctx.varInit else None  # visit and evaluate the Expr
 
-        if varName in refEnv:
-            raise Redeclared(Variable(), varName)
-        else:
-            refEnv[varName] = {
-                'type': varType,
-                'init': varInit
-            }
+        print("visiting varDecl! varName = %s, varType = %s, varInit = %s" % (varName, varType, varInit))
+
+
+        getExprType(varInit, varInit, refEnv)
+        # if varName in refEnv['global'][refEnv['current'].name]:
+        #     raise Redeclared(Variable(), varName)
+        # else:
+        print(" "*8 + "now before varDecl, refEnv['local'] = ")
+        printDict(refEnv, 12)
+
+        # also add init
+        refEnv['global'][refEnv['current'].name][varName]['init'] = varInit
+
+        print(" "*8 + "then refEnv['local'] = ")
+        printDict(refEnv, 12)
     
     def visitConstDecl(self, ctx, refEnv):
-        return None
-    
+        constName = ctx.constant.name     # string
+        constType = ctx.constType           # Type
+        constInit = self.visit(ctx.value, refEnv)  # visit and evaluate the Expr
+
+        print("visiting constDecl! constName = %s, constType = %s, constInit = %s" % (constName, constType, constInit))
+
+
+        print("'"*8 + "type of init = %s" % str(getExprType(constInit, constInit, refEnv)))
+        # if constType:
+        #     raise TypeMismatchInConstant(ctx)
+        
+
+
+        if not isConstExpr(constInit, constInit, refEnv):
+            raise IllegalConstantExpression(constInit)
+        
+        print(" "*8 + "now before constDecl, refEnv['local'] = ")
+        printDict(refEnv, 12)
+
+        # also add init
+        refEnv['global'][refEnv['current'].name][constName]['init'] = constInit
+
+        print(" "*8 + "then refEnv['local'] = ")
+        printDict(refEnv, 12)
+
     def visitStatic(self, ctx, refEnv):
         return None
     
@@ -260,36 +361,40 @@ class StaticChecker(BaseVisitor):
 
     # ---- Type -----
     
-    def visitIntType(self, ctx, refEnv):
-        return None
+    # def visitIntType(self, ctx, refEnv):
+    #     return None
     
-    def visitFloatType(self, ctx, refEnv):
-        return None
+    # def visitFloatType(self, ctx, refEnv):
+    #     return None
     
-    def visitBoolType(self, ctx, refEnv):
-        return None
+    # def visitBoolType(self, ctx, refEnv):
+    #     return None
     
-    def visitStringType(self, ctx, refEnv):
-        return None
+    # def visitStringType(self, ctx, refEnv):
+    #     return None
     
-    def visitVoidType(self, ctx, refEnv):
-        return None
+    # def visitVoidType(self, ctx, refEnv):
+    #     return None
     
-    def visitArrayType(self, ctx, refEnv):
-        return None
+    # def visitArrayType(self, ctx, refEnv):
+    #     return None
     
-    def visitClassType(self, ctx, refEnv):
-        return None
+    # def visitClassType(self, ctx, refEnv):
+    #     return None
     
 
     # ---- Expression -----
 
     def visitBinaryOp(self, ctx, refEnv):
-        return None
+        return ctx
     
     def visitUnaryOp(self, ctx, refEnv):
-        return None
+        return ctx
     
+    def visitFieldAccess(self, ctx, refEnv):
+
+        return None
+
     def visitCallExpr(self, ctx, refEnv):
         return None
     
@@ -297,37 +402,40 @@ class StaticChecker(BaseVisitor):
         return None
     
     def visitId(self, ctx, refEnv):
-        return None
+        return ctx
     
     def visitArrayCell(self, ctx, refEnv):
-        return None
-    
-    def visitFieldAccess(self, ctx, refEnv):
         return None
 
 
     # --- Literal -----
 
     def visitIntLiteral(self, ctx, refEnv):
-        return None
+        return ctx
     
     def visitFloatLiteral(self, ctx, refEnv):
-        return None
+        return ctx
     
     def visitBooleanLiteral(self, ctx, refEnv):
-        return None
+        return ctx
     
     def visitStringLiteral(self, ctx, refEnv):
-        return None
+        return ctx
     
     def visitNullLiteral(self, ctx, refEnv):
-        return None
+        return ctx
     
     def visitSelfLiteral(self, ctx, refEnv):
-        return None 
+        return ctx 
 
     def visitArrayLiteral(self, ctx, refEnv):
-        return None 
+        arrType = type(ctx.value[0])
+
+        for elem in ctx.value:
+            if type(elem) is not arrType:
+                raise IllegalArrayLiteral(ctx)
+
+        return ctx
     
     
     # ---- Stmt -----

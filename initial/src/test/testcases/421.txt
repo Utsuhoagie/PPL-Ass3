@@ -1,6 +1,6 @@
 
             class Shape {
                 int a = 3;
-                final int num = 5 + a;
+                final int num = -a;
             }
         

@@ -106,34 +106,162 @@ class CheckerSuite(unittest.TestCase):
         self.assertTrue(TestChecker.test(input, expect, 410)) 
 
 
-    def test11(self):
-        input = """
-            class Shape {
-                float length;
-                float width;
-            }
-            class Rectangle extends Shape {
+    # def test11(self):
+    #     input = """
+    #         class Shape {
+    #             float length;
+    #             float width;
+    #         }
+    #         class Rectangle extends Shape {
 
-            }
-        """
-        expect = """"""
-        self.assertTrue(TestChecker.test(input, expect, 411)) 
+    #         }
+    #     """
+    #     expect = """"""
+    #     self.assertTrue(TestChecker.test(input, expect, 411)) 
 
-    def test12(self):
-        input = """
-            class Shape {
-                float length = 5.5;
-                void foo() {
+    # def test12(self):
+    #     input = """
+    #         class Shape {
+    #             float length = 5.5;
+    #         }
+    #     """
+    #     expect = """"""
+    #     self.assertTrue(TestChecker.test(input, expect, 412))
 
-                }
-            }
-        """
-        expect = """"""
-        self.assertTrue(TestChecker.test(input, expect, 412))
+    # def test13(self):
+    #     input = """
+    #         class Shape {
+    #             float length = 5.5;
+    #             void foo() {
 
+    #             }
+    #         }
+    #     """
+    #     expect = """"""
+    #     self.assertTrue(TestChecker.test(input, expect, 413))
 
+    # def test14(self):
+    #     input = """
+    #         class Shape {
+    #             int[3] arr = {3, 4.5, 5};
+    #         }
+    #     """
+    #     expect = """Illegal Array Literal: [IntLit(3),FloatLit(4.5),IntLit(5)]"""
+    #     self.assertTrue(TestChecker.test(input, expect, 414))
+
+    # def test15(self):
+    #     input = """
+    #         class Shape {
+    #             int[3] arr = {3, 4, 5};
+    #         }
+    #     """
+    #     expect = """"""
+    #     self.assertTrue(TestChecker.test(input, expect, 415))
+
+    # def test16(self):
+    #     input = """
+    #         class Shape {
+    #             final int a = 5;
+    #         }
+    #     """
+    #     expect = """"""
+    #     self.assertTrue(TestChecker.test(input, expect, 416))
+
+    # def test17(self):
+    #     input = """
+    #         class Shape {
+    #             int num = 5;
+    #             final int a = num;
+    #         }
+    #     """
+    #     expect = """Illegal Constant Expression: Id(num)"""
+    #     self.assertTrue(TestChecker.test(input, expect, 417))
+
+    # def test18(self):
+    #     input = """
+    #         class Shape {
+    #             final int numf = 5;
+    #             final int a = numf;
+    #         }
+    #     """
+    #     expect = """"""
+    #     self.assertTrue(TestChecker.test(input, expect, 418))
+
+    # def test19(self):
+    #     input = """
+    #         class Shape {
+    #             int num = 5 + 3;
+    #         }
+    #     """
+    #     expect = """"""
+    #     self.assertTrue(TestChecker.test(input, expect, 419))
 
     # def test20(self):
+    #     input = """
+    #         class Shape {
+    #             int a = 3;
+    #             final int num = 5 + a;
+    #         }
+    #     """
+    #     expect = """Illegal Constant Expression: BinaryOp(+,IntLit(5),Id(a))"""
+    #     self.assertTrue(TestChecker.test(input, expect, 420))
+
+    # def test21(self):
+    #     input = """
+    #         class Shape {
+    #             int a = 3;
+    #             final int num = -a;
+    #         }
+    #     """
+    #     expect = """Illegal Constant Expression: UnaryOp(-,Id(a))"""
+    #     self.assertTrue(TestChecker.test(input, expect, 421))
+
+    # def test22(self):
+    #     input = """
+    #         class Shape {
+    #             int a = 3 + "a";
+    #         }
+    #     """
+    #     expect = """Type Mismatch In Expression: BinaryOp(+,IntLit(3),StringLit(a))"""
+    #     self.assertTrue(TestChecker.test(input, expect, 422))
+
+    # def test23(self):
+    #     input = """
+    #         class Shape {
+    #             int a = 3 \ 3.5;
+    #         }
+    #     """
+    #     expect = """Type Mismatch In Expression: BinaryOp(\,IntLit(3),FloatLit(3.5))"""
+    #     self.assertTrue(TestChecker.test(input, expect, 423))
+
+    # def test24(self):
+    #     input = """
+    #         class Shape {
+    #             bool a = true && 1;
+    #         }
+    #     """
+    #     expect = """Type Mismatch In Expression: BinaryOp(&&,BooleanLit(True),IntLit(1))"""
+    #     self.assertTrue(TestChecker.test(input, expect, 424))
+
+    # def test25(self):
+    #     input = """
+    #         class Shape {
+    #             bool a = 3 == 6;
+    #         }
+    #     """
+    #     expect = """"""
+    #     self.assertTrue(TestChecker.test(input, expect, 425))
+
+    def test26(self):
+        input = """
+            class Shape {
+                bool a = 3 == false;
+            }
+        """
+        expect = """Type Mismatch In Expression: BinaryOp(==,IntLit(3),BooleanLit(False))"""
+        self.assertTrue(TestChecker.test(input, expect, 426))
+
+    # def test30(self):
     #     input = """
     #         class Shape {
     #             float length;
@@ -151,4 +279,4 @@ class CheckerSuite(unittest.TestCase):
     #         }
     #     """
     #     expect = """"""
-    #     self.assertTrue(TestChecker.test(input, expect, 420)) 
+    #     self.assertTrue(TestChecker.test(input, expect, 40)) 

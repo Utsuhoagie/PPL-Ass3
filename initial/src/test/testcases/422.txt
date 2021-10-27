@@ -1,5 +1,5 @@
 
             class Shape {
-                float length = 5.5;
+                int a = 3 + "a";
             }
         

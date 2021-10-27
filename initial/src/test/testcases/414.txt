@@ -1,5 +1,5 @@
 
             class Shape {
-                float length = 5.5;
+                int[3] arr = {3, 4.5, 5};
             }
         

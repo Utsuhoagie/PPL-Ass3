@@ -1,4 +1,4 @@
-# Generated from e:\Study\Sem7\PPL\Assignment\A2\Second try\initial\src\main\bkool\parser\BKOOL.g4 by ANTLR 4.8
+# Generated from e:\Study\Sem7\PPL\Assignment\A3\MAKE THIS WORK 2\initial\src\main\bkool\parser\BKOOL.g4 by ANTLR 4.8
 # encoding: utf-8
 from antlr4 import *
 from io import StringIO
@@ -238,7 +238,7 @@ class BKOOLParser ( Parser ):
                      "'new'", "'string'", "'then'", "'for'", "'return'", 
                      "'true'", "'false'", "'void'", "'nil'", "'this'", "'final'", 
                      "'static'", "'to'", "'downto'", "<INVALID>", "'+'", 
-                     "'-'", "'*'", "'''", "'/'", "'%'", "'!='", "'=='", 
+                     "'-'", "'*'", "'\\'", "'/'", "'%'", "'!='", "'=='", 
                      "'<'", "'>'", "'<='", "'>='", "'||'", "'&&'", "'!'", 
                      "'^'", "':='", "'='", "'{'", "'}'", "'('", "')'", "'['", 
                      "']'", "';'", "':'", "'.'", "','" ]

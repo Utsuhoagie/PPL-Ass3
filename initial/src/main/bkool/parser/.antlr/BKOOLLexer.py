@@ -1,4 +1,4 @@
-# Generated from e:\Study\Sem7\PPL\Assignment\A2\Second try\initial\src\main\bkool\parser\BKOOL.g4 by ANTLR 4.8
+# Generated from e:\Study\Sem7\PPL\Assignment\A3\MAKE THIS WORK 2\initial\src\main\bkool\parser\BKOOL.g4 by ANTLR 4.8
 from antlr4 import *
 from io import StringIO
 from typing.io import TextIO
@@ -186,7 +186,7 @@ def serializedATN():
         buf.write("\2\2\2\u0184T\3\2\2\2\u0185\u0183\3\2\2\2\u0186\u0187")
         buf.write("\7a\2\2\u0187V\3\2\2\2\u0188\u0189\7-\2\2\u0189X\3\2\2")
         buf.write("\2\u018a\u018b\7/\2\2\u018bZ\3\2\2\2\u018c\u018d\7,\2")
-        buf.write("\2\u018d\\\3\2\2\2\u018e\u018f\7)\2\2\u018f^\3\2\2\2\u0190")
+        buf.write("\2\u018d\\\3\2\2\2\u018e\u018f\7^\2\2\u018f^\3\2\2\2\u0190")
         buf.write("\u0191\7\61\2\2\u0191`\3\2\2\2\u0192\u0193\7\'\2\2\u0193")
         buf.write("b\3\2\2\2\u0194\u0195\7#\2\2\u0195\u0196\7?\2\2\u0196")
         buf.write("d\3\2\2\2\u0197\u0198\7?\2\2\u0198\u0199\7?\2\2\u0199")
@@ -299,7 +299,7 @@ class BKOOLLexer(Lexer):
             "'extends'", "'float'", "'if'", "'int'", "'new'", "'string'", 
             "'then'", "'for'", "'return'", "'true'", "'false'", "'void'", 
             "'nil'", "'this'", "'final'", "'static'", "'to'", "'downto'", 
-            "'+'", "'-'", "'*'", "'''", "'/'", "'%'", "'!='", "'=='", "'<'", 
+            "'+'", "'-'", "'*'", "'\\'", "'/'", "'%'", "'!='", "'=='", "'<'", 
             "'>'", "'<='", "'>='", "'||'", "'&&'", "'!'", "'^'", "':='", 
             "'='", "'{'", "'}'", "'('", "')'", "'['", "']'", "';'", "':'", 
             "'.'", "','" ]

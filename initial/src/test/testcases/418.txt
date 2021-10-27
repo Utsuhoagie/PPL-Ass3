@@ -1,0 +1,6 @@
+
+            class Shape {
+                final int numf = 5;
+                final int a = numf;
+            }
+        
