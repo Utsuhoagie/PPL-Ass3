@@ -1,0 +1,7 @@
+
+            class Shape {
+                int foo(int a) {
+                    int a = 0;
+                }
+            }
+        

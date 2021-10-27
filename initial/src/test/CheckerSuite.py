@@ -4,106 +4,81 @@ from AST import *
 
 class CheckerSuite(unittest.TestCase):
 
-    # def test_undeclared_function_use_ast(self):
-    #     """Simple program: int main() {} """
-    #     input = Program([FuncDecl(Id("main"),[],IntType(),Block([],[
-    #         CallExpr(Id("foo"),[])]))])
-    #     expect = "Undeclared Function: foo"
-    #     self.assertTrue(TestChecker.test(input,expect,403))
+    # def test0(self):
+    #     input  ="""
+    #         class A {
+    #             int x;
+    #             float x;
+    #         }
+    #     """
 
-    # def test_diff_numofparam_expr_use_ast(self):
-    #     """More complex program"""
-    #     input = Program([
-    #             FuncDecl(Id("main"),[],IntType(),Block([],[
-    #                 CallExpr(Id("putIntLn"),[
-    #                     CallExpr(Id("getInt"),[IntLiteral(4)])
-    #                     ])]))])
-    #     expect = "Type Mismatch In Expression: CallExpr(Id(getInt),List(IntLiteral(4)))"
-    #     self.assertTrue(TestChecker.test(input,expect,404))
-
-    # def test_diff_numofparam_stmt_use_ast(self):
-    #     """More complex program"""
-    #     input = Program([
-    #             FuncDecl(Id("main"),[],IntType(),Block([],[
-    #                 CallExpr(Id("putIntLn"),[])]))])
-    #     expect = "Type Mismatch In Statement: CallExpr(Id(putIntLn),List())"
-    #     self.assertTrue(TestChecker.test(input,expect,405))
-    
-    def test0(self):
-        input  ="""
-            class A {
-                int x;
-                float x;
-            }
-        """
-
-        expect = """Redeclared Attribute: x"""
-        self.assertTrue(TestChecker.test(input, expect, 400))
+    #     expect = """Redeclared Attribute: x"""
+    #     self.assertTrue(TestChecker.test(input, expect, 400))
 
 
-    def test1(self):
-        input = """
-            class a {
+    # def test1(self):
+    #     input = """
+    #         class a {
 
-            }
+    #         }
 
-            class a {
+    #         class a {
                 
-            }
-        """
+    #         }
+    #     """
 
-        expect = """Redeclared Class: a"""
-        self.assertTrue(TestChecker.test(input, expect, 401))
+    #     expect = """Redeclared Class: a"""
+    #     self.assertTrue(TestChecker.test(input, expect, 401))
 
-    def test2(self):
-        input = """
-            class A extends B {
+    # def test2(self):
+    #     input = """
+    #         class A extends B {
                 
-            }
-        """
+    #         }
+    #     """
 
-        expect = """Undeclared Class: B"""
-        self.assertTrue(TestChecker.test(input, expect, 402))
+    #     expect = """Undeclared Class: B"""
+    #     self.assertTrue(TestChecker.test(input, expect, 402))
 
-    def test3(self):
-        input = """
-            class A {
-                int var1;
-                bool var1;
-            }
-        """
+    # def test3(self):
+    #     input = """
+    #         class A {
+    #             int var1;
+    #             bool var1;
+    #         }
+    #     """
 
-        expect = """Redeclared Attribute: var1"""
-        self.assertTrue(TestChecker.test(input, expect, 403))
+    #     expect = """Redeclared Attribute: var1"""
+    #     self.assertTrue(TestChecker.test(input, expect, 403))
 
-    def test4(self):
-        input = """
-            class A {
-                int foo() {
+    # def test4(self):
+    #     input = """
+    #         class A {
+    #             int foo() {
 
-                }
+    #             }
                 
-                float foo() {
+    #             float foo() {
 
-                }
-            }
-        """
+    #             }
+    #         }
+    #     """
 
-        expect = """Redeclared Method: foo"""
-        self.assertTrue(TestChecker.test(input, expect, 404))
+    #     expect = """Redeclared Method: foo"""
+    #     self.assertTrue(TestChecker.test(input, expect, 404))
 
-    def test10(self):
-        input = """
-            class Shape {
-                float length, width;
-                float getArea() {}
-            }
-            class Rectangle extends Shapeee {
-                int length;
-            }
-        """
-        expect = """Undeclared Class: Shapeee"""
-        self.assertTrue(TestChecker.test(input, expect, 410)) 
+    # def test10(self):
+    #     input = """
+    #         class Shape {
+    #             float length, width;
+    #             float getArea() {}
+    #         }
+    #         class Rectangle extends Shapeee {
+    #             int length;
+    #         }
+    #     """
+    #     expect = """Undeclared Class: Shapeee"""
+    #     self.assertTrue(TestChecker.test(input, expect, 410)) 
 
 
     # def test11(self):
@@ -252,16 +227,239 @@ class CheckerSuite(unittest.TestCase):
     #     expect = """"""
     #     self.assertTrue(TestChecker.test(input, expect, 425))
 
-    def test26(self):
-        input = """
-            class Shape {
-                bool a = 3 == false;
-            }
-        """
-        expect = """Type Mismatch In Expression: BinaryOp(==,IntLit(3),BooleanLit(False))"""
-        self.assertTrue(TestChecker.test(input, expect, 426))
+    # def test26(self):
+    #     input = """
+    #         class Shape {
+    #             bool a = 3 == false;
+    #         }
+    #     """
+    #     expect = """Type Mismatch In Expression: BinaryOp(==,IntLit(3),BooleanLit(False))"""
+    #     self.assertTrue(TestChecker.test(input, expect, 426))
+
+    # def test27(self):
+    #     input = """
+    #         class Shape {
+    #             int a;
+    #             int foo(int b) {}
+    #         }
+    #     """
+    #     expect = """"""
+    #     self.assertTrue(TestChecker.test(input, expect, 427))
+
+    # def test28(self):
+    #     input = """
+    #         class Ex {
+    #             int x = 5.5;
+    #         }
+    #     """
+    #     expect = """"""
+    #     self.assertTrue(TestChecker.test(input, expect, 428))
+
+
+
+    # def test29(self):
+    #     input = """
+    #         class Ex {
+    #             final int x = 10.0;
+    #         }
+    #     """
+    #     expect = """Type Mismatch In Constant Declaration: ConstDecl(Id(x),IntType,FloatLit(10.0))"""
+    #     self.assertTrue(TestChecker.test(input, expect, 429))
 
     # def test30(self):
+    #     input = """
+    #         class Shape {
+    #             int foo() {}
+    #         }
+    #     """
+    #     expect = """"""
+    #     self.assertTrue(TestChecker.test(input, expect, 430))
+
+    # def test31(self):
+    #     input = """
+    #         class Shape {
+    #             int foo() {}
+
+    #             float foo() {}
+    #         }
+    #     """
+    #     expect = """Redeclared Method: foo"""
+    #     self.assertTrue(TestChecker.test(input, expect, 431))
+
+    # def test32(self):
+    #     input = """
+    #         class Shape {
+    #             int foo(int a) {}
+    #         }
+    #     """
+    #     expect = """"""
+    #     self.assertTrue(TestChecker.test(input, expect, 432))
+
+    # def test33(self):
+    #     input = """
+    #         class Shape {
+    #             float a;
+    #             int foo(int a) {}
+    #         }
+    #     """
+    #     expect = """"""
+    #     self.assertTrue(TestChecker.test(input, expect, 433))
+
+    # def test34(self):
+    #     input = """
+    #         class Shape {
+    #             float foo;
+    #             int foo(int a) {}
+    #         }
+    #     """
+    #     expect = """Redeclared Method: foo"""
+    #     self.assertTrue(TestChecker.test(input, expect, 434))
+
+    # def test35(self):
+    #     input = """
+    #         class Shape {
+    #             int foo(int a) {
+    #                 int b = 0;
+    #             }
+    #         }
+    #     """
+    #     expect = """"""
+    #     self.assertTrue(TestChecker.test(input, expect, 435))
+
+    # def test36(self):
+    #     input = """
+    #         class Shape {
+    #             int foo(int a) {
+    #                 int a = 0;
+    #             }
+    #         }
+    #     """
+    #     expect = """Redeclared Variable: a"""
+    #     self.assertTrue(TestChecker.test(input, expect, 436))
+
+    # def test37(self):
+    #     input = """
+    #         class Shape {
+    #             void foo() {
+    #                 continue;
+    #             }
+    #         }
+    #     """
+    #     expect = """Continue Not In Loop"""
+    #     self.assertTrue(TestChecker.test(input, expect, 437))
+
+    # def test38(self):
+    #     input = """
+    #         class Shape {
+    #             void foo() {
+    #                 break;
+    #             }
+    #         }
+    #     """
+    #     expect = """Break Not In Loop"""
+    #     self.assertTrue(TestChecker.test(input, expect, 438))
+
+    # def test39(self):
+    #     input = """
+    #         class Shape {
+    #             int foo() {
+    #                 if true then
+    #                     return 5;
+    #             }
+    #         }
+    #     """
+    #     expect = """"""
+    #     self.assertTrue(TestChecker.test(input, expect, 439))
+
+    # def test40(self):
+    #     input = """
+    #         class Shape {
+    #             int foo() {
+    #                 if true && false || true then
+    #                     return 5;
+    #             }
+    #         }
+    #     """
+    #     expect = """"""
+    #     self.assertTrue(TestChecker.test(input, expect, 440))
+
+    # def test41(self):
+    #     input = """
+    #         class Shape {
+    #             int foo(boolean cond) {
+    #                 if cond then
+    #                     return 5;
+    #             }
+    #         }
+    #     """
+    #     expect = """"""
+    #     self.assertTrue(TestChecker.test(input, expect, 441))
+
+    # def test42(self):
+    #     input = """
+    #         class Shape {
+    #             int foo(int cond) {
+    #                 if cond then
+    #                     return 5;
+    #             }
+    #         }
+    #     """
+    #     expect = """Type Mismatch In Statement: If(Id(cond),Return(IntLit(5)))"""
+    #     self.assertTrue(TestChecker.test(input, expect, 442))
+
+    # def test43(self):
+    #     input = """
+    #         class Shape {
+    #             Rect r;
+    #         }
+
+    #         class Rect {
+    #             float w, h;
+    #         }
+    #     """
+    #     expect = """"""
+    #     self.assertTrue(TestChecker.test(input, expect, 443))
+
+    # def test44(self):
+    #     input = """
+    #         class Shape {
+    #             void foo() {
+    #                 Shape s;
+    #             }
+    #         }
+    #     """
+    #     expect = """"""
+    #     self.assertTrue(TestChecker.test(input, expect, 444))
+
+    # def test45(self):
+    #     input = """
+    #         class Shape {
+    #             void foo() {
+    #                 Shh s;
+    #             }
+    #         }
+    #     """
+    #     expect = """Undeclared Class: Shh"""
+    #     self.assertTrue(TestChecker.test(input, expect, 445))
+
+    def test46(self):
+        input = """
+            class Shape {
+                void foo() {
+                    Shh s;
+                }
+            }
+
+            class Shh {
+
+            }
+        """
+        expect = """"""
+        self.assertTrue(TestChecker.test(input, expect, 446))
+
+
+
+    # def test50(self):
     #     input = """
     #         class Shape {
     #             float length;
@@ -279,4 +477,4 @@ class CheckerSuite(unittest.TestCase):
     #         }
     #     """
     #     expect = """"""
-    #     self.assertTrue(TestChecker.test(input, expect, 40)) 
+    #     self.assertTrue(TestChecker.test(input, expect, 450)) 

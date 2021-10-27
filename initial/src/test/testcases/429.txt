@@ -1,0 +1,5 @@
+
+            class Ex {
+                final int x = 10.0;
+            }
+        

@@ -32,12 +32,12 @@ def printDict(refEnv: dict, spaces: int, isStatic: bool = False):
     for key in refEnv:
         if type(refEnv[key]) is not dict:
             line = " "*spaces + quotes + ("%s%s: %s" % (key, quotes, getObjName(refEnv[key])))
-            print(line)
+            #print(line)
         else:
             line = " "*spaces + quotes + ("%s%s: {" % (key, quotes))
-            print(line)
+            #print(line)
             printDict(refEnv[key], spaces + 4, isStatic)
-            print(" "*spaces + "}")
+            #print(" "*spaces + "}")
 
 def isConstExpr(exp: Expr, baseExp: Expr, refEnv) -> bool:
     if type(exp) is Id:
@@ -65,7 +65,7 @@ def getCheckExprType(exp: Expr, baseExp: Expr, refEnv) -> Type:
         
 
     elif isinstance(exp, Id):
-        print("-"*4 + "type of %s" % exp.name + " = " + str(refEnv[exp.name]['type']))
+        #print("-"*4 + "type of %s" % exp.name + " = " + str(refEnv[exp.name]['type']))
         return refEnv[exp.name]['type']
     
     
@@ -75,7 +75,7 @@ def getCheckExprType(exp: Expr, baseExp: Expr, refEnv) -> Type:
             t2 = getCheckExprType(exp.right, baseExp, refEnv)
             op = exp.op
 
-            #print("here!!!! t1 = " + str(t1) + " and t1 equals IntType? %s" % (type(t1) == IntType) + " | t2 = " + str(t2))
+            ##print("here!!!! t1 = " + str(t1) + " and t1 equals IntType? %s" % (type(t1) == IntType) + " | t2 = " + str(t2))
 
             if op in ['+','-','*']:
                 if type(t1) not in [IntType, FloatType] or type(t2) not in [IntType, FloatType]:
@@ -124,10 +124,10 @@ def getCheckInitType(constDecl: ConstDecl, expL: Expr, baseExpL: Expr, expR: Exp
     else:
         # check what the Id() is pointing to
         lhsType = getCheckExprType(expL, baseExpL, refEnv)
-        print("-"*4 + "lhsType = " + str(lhsType) + " | rhsType = " + str(rhsType))
+        #print("-"*4 + "lhsType = " + str(lhsType) + " | rhsType = " + str(rhsType))
 
         if not typesCompat(lhsType, rhsType) or type(lhsType) is VoidType:
-            print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+            #print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
             raise TypeMismatchInConstant(constDecl)
 
     # DON'T NEED TO DO, SPECS DON'T HAVE IT!!!!!
@@ -156,7 +156,7 @@ class GetRefEnv(BaseVisitor):
 
     def visitProgram(self, ctx, refEnv) -> dict:
 
-        print("=================================================")
+        #print("=================================================")
 
         # create new refEnv
         refEnv = {}
@@ -194,7 +194,7 @@ class GetRefEnv(BaseVisitor):
                         if storeDeclName not in refEnv:
                             raise Undeclared(Class(), storeDeclName)
                     
-        print("\n\nin GetRefEnv, refEnv = ")
+        #print("\n\nin GetRefEnv, refEnv = ")
         printDict(refEnv, 4)
 
         return refEnv
@@ -319,14 +319,14 @@ class StaticChecker(BaseVisitor):
         # with attributes and methods inside
         refEnv = GetRefEnv().visit(ctx, None)
 
-        # print("\nrefEnv = ")
+        # #print("\nrefEnv = ")
         # printDict(refEnv, 4)
 
-        print("\n=====================================\nin StaticChecker")
+        #print("\n=====================================\nin StaticChecker")
 
         [self.visit(classDecl, refEnv) for classDecl in ctx.decl]
 
-        print("\n" + "after visit, refEnv = ")
+        #print("\n" + "after visit, refEnv = ")
         printDict(refEnv, 4)
 
 
@@ -340,7 +340,7 @@ class StaticChecker(BaseVisitor):
             'global': refEnv
         }
 
-        print(" "*4 + "clsRefEnv: ")
+        #print(" "*4 + "clsRefEnv: ")
         printDict(clsRefEnv, 8)
 
         [self.visit(memDecl, clsRefEnv) for memDecl in ctx.memlist]
@@ -361,14 +361,14 @@ class StaticChecker(BaseVisitor):
         mthdRefEnv['local']['isParam'] = False
         self.visit(ctx.body, mthdRefEnv)
 
-        print(" "*8 + "mthdRefEnv: ")
+        #print(" "*8 + "mthdRefEnv: ")
         printDict(mthdRefEnv, 12)
 
         #[GetRefEnv().visit(ctx.)]
 
 
     def visitAttributeDecl(self, ctx, refEnv):
-        print(" "*12 + "visiting attrDecl!")
+        #print(" "*12 + "visiting attrDecl!")
         self.visit(ctx.decl, refEnv)
 
     def visitVarDecl(self, ctx, refEnv):
@@ -503,7 +503,7 @@ class StaticChecker(BaseVisitor):
         # decl: List[StoreDecl]
         [self.visit(decl, refEnv) for decl in ctx.decl]
 
-        print(" "*16 + "in block, refEnv = ")
+        #print(" "*16 + "in block, refEnv = ")
         printDict(refEnv, 20)
 
         [self.visit(stmt, refEnv) for stmt in ctx.stmt]

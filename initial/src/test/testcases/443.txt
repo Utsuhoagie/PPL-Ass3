@@ -1,0 +1,9 @@
+
+            class Shape {
+                Rect r;
+            }
+
+            class Rect {
+                float w, h;
+            }
+        

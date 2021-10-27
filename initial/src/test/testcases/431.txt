@@ -1,0 +1,7 @@
+
+            class Shape {
+                int foo() {}
+
+                float foo() {}
+            }
+        

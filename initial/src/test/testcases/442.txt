@@ -1,0 +1,8 @@
+
+            class Shape {
+                int foo(int cond) {
+                    if cond then
+                        return 5;
+                }
+            }
+        

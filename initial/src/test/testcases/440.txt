@@ -1,0 +1,8 @@
+
+            class Shape {
+                int foo() {
+                    if true && false || true then
+                        return 5;
+                }
+            }
+        

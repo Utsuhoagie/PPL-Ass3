@@ -1,0 +1,11 @@
+
+            class Shape {
+                void foo() {
+                    Shh s;
+                }
+            }
+
+            class Shh {
+
+            }
+        
