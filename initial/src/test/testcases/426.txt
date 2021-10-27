@@ -1,5 +1,5 @@
 
             class Shape {
-                bool a = 3 == false;
+                boolean a = 3 == false;
             }
         

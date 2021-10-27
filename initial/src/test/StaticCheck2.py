@@ -52,7 +52,7 @@ def isConstExpr(exp: Expr, baseExp: Expr, refEnv) -> bool:
             return isConstExpr(exp.left, baseExp, refEnv) and isConstExpr(exp.right, baseExp, refEnv)
     return False
 
-def getCheckExprType(exp: Expr, baseExp: Expr, refEnv) -> Type:
+def getCheckExprType(exp: Expr, baseExp: Expr, refEnv, isClassMem: bool = False) -> Type:
     if isinstance(exp, Literal):
         if type(exp) is IntLiteral:
             return IntType()
@@ -65,8 +65,17 @@ def getCheckExprType(exp: Expr, baseExp: Expr, refEnv) -> Type:
         
 
     elif isinstance(exp, Id):
-        #print("-"*4 + "type of %s" % exp.name + " = " + str(refEnv[exp.name]['type']))
-        return refEnv[exp.name]['type']
+        ##print("-"*4 + "type of %s" % exp.name + " = " + str(refEnv[exp.name]['type']))
+        if isClassMem:
+            return refEnv[exp.name]['type']
+            pass
+        else:
+            #print("---- in getCheckExprType, exp = " + str(exp))
+            printDict(refEnv,4)
+            if exp.name in refEnv['global'][refEnv['current'].name]:
+                return refEnv['global'][refEnv['current'].name][exp.name]['type']
+            else:
+                return refEnv['local'][exp.name]['type']
     
     
     else:
@@ -113,9 +122,9 @@ def getCheckExprType(exp: Expr, baseExp: Expr, refEnv) -> Type:
                     return BoolType()
             
 
-def getCheckInitType(constDecl: ConstDecl, expL: Expr, baseExpL: Expr, expR: Expr, baseExpR: Expr, refEnv) -> Type:
+def getCheckInitType(constDecl: ConstDecl, expL: Expr, baseExpL: Expr, expR: Expr, baseExpR: Expr, refEnv, isClassMem: bool = False) -> Type:
 
-    rhsType = getCheckExprType(expR, baseExpR, refEnv)
+    rhsType = getCheckExprType(expR, baseExpR, refEnv, isClassMem)
 
     # expL can only be among [Id(), ArrayCell(), FieldAccess()] which are all LHS
     # but Id() can point to anything except VoidType
@@ -123,11 +132,11 @@ def getCheckInitType(constDecl: ConstDecl, expL: Expr, baseExpL: Expr, expR: Exp
         raise TypeMismatchInConstant(baseExpL)
     else:
         # check what the Id() is pointing to
-        lhsType = getCheckExprType(expL, baseExpL, refEnv)
+        lhsType = getCheckExprType(expL, baseExpL, refEnv, isClassMem)
         #print("-"*4 + "lhsType = " + str(lhsType) + " | rhsType = " + str(rhsType))
 
         if not typesCompat(lhsType, rhsType) or type(lhsType) is VoidType:
-            #print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+            ##print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
             raise TypeMismatchInConstant(constDecl)
 
     # DON'T NEED TO DO, SPECS DON'T HAVE IT!!!!!
@@ -207,6 +216,7 @@ class GetRefEnv(BaseVisitor):
         className = ctx.classname.name
         if className in refEnv:
             raise Redeclared(Class(), className)
+        
         refEnv[className] = {}
         [self.visit(memDecl, refEnv[className]) for memDecl in ctx.memlist]
 
@@ -241,9 +251,9 @@ class GetRefEnv(BaseVisitor):
 
             # check type of assigning that init expr to the const itself
             if attrIsConst:
-                getCheckInitType(ctx.decl, Id(attrName), Id(attrName), attrInit, attrInit, refEnv)
+                getCheckInitType(ctx.decl, Id(attrName), Id(attrName), attrInit, attrInit, refEnv, isClassMem=True)
             else:
-                getCheckExprType(attrInit, attrInit, refEnv)
+                getCheckExprType(attrInit, attrInit, refEnv, isClassMem=True)
 
             #refEnv[storeDecl[0]]['init'] = storeDecl[2]
 
@@ -359,6 +369,8 @@ class StaticChecker(BaseVisitor):
         # visit param: List[VarDecl]
         [self.visit(param, mthdRefEnv) for param in ctx.param]
         mthdRefEnv['local']['isParam'] = False
+
+
         self.visit(ctx.body, mthdRefEnv)
 
         #print(" "*8 + "mthdRefEnv: ")
@@ -376,25 +388,32 @@ class StaticChecker(BaseVisitor):
         
         # SCRATCH THAT !!!!!!!!!!!!!!!
         # refEnv is full refEnv !!!!!
-        
+
         varName = ctx.variable.name     # string
         varType = ctx.varType           # Type
         varInit = self.visit(ctx.varInit, refEnv) if ctx.varInit else None  # visit and evaluate the Expr
 
 
-        if varType.classname.name not in refEnv['global']:
+
+        if type(varType) is ClassType and varType.classname.name not in refEnv['global']:
             raise Undeclared(Class(), varType.classname.name)
 
-        if varName in refEnv['local']:
-            if refEnv['isParam']:
-                raise Redeclared(Parameter(), varName)
-            else:
-                raise Redeclared(Variable(), varName)
+        #print(" "*16 + "varDecl once")
+        printDict(refEnv,20)
 
-        refEnv['local'][varName] = {
-            'type': varType,
-            'init': varInit
-        }
+        if 'local' in refEnv:
+            if varName in refEnv['local']:
+                if refEnv['local']['isParam']:
+                    raise Redeclared(Parameter(), varName)
+                else:
+                    raise Redeclared(Variable(), varName)
+
+            refEnv['local'][varName] = {
+                'type': varType,
+                'init': varInit
+            }
+        #else:
+            #refEnv['global'][refEnv['current']]
 
 
     def visitConstDecl(self, ctx, refEnv):
@@ -518,7 +537,17 @@ class StaticChecker(BaseVisitor):
         return None
     
     def visitFor(self, ctx, refEnv):
-        refEnv['isInLoop'] = True
+        refEnv['global'][refEnv['current'].name]['isInLoop'] = True
+        i = ctx.id
+        exp1 = ctx.expr1
+        exp2 = ctx.expr2
+
+        if i.name not in refEnv['local']:
+            if i.name not in refEnv['global'][refEnv['current'].name]:
+                raise Undeclared(Identifier(),i.name)
+
+        if type(getCheckExprType(i, i, refEnv)) is not IntType:
+            raise TypeMismatchInStatement(ctx)
 
         return None
     

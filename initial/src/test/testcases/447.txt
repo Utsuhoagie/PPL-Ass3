@@ -1,6 +1,6 @@
 
             class Shape {
-                int i;
+                string i;
                 void foo() {
                     for i := 1 to 5 do {}
                 }

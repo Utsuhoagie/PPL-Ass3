@@ -212,7 +212,7 @@ class CheckerSuite(unittest.TestCase):
     # def test24(self):
     #     input = """
     #         class Shape {
-    #             bool a = true && 1;
+    #             boolean a = true && 1;
     #         }
     #     """
     #     expect = """Type Mismatch In Expression: BinaryOp(&&,BooleanLit(True),IntLit(1))"""
@@ -221,7 +221,7 @@ class CheckerSuite(unittest.TestCase):
     # def test25(self):
     #     input = """
     #         class Shape {
-    #             bool a = 3 == 6;
+    #             boolean a = 3 == 6;
     #         }
     #     """
     #     expect = """"""
@@ -230,7 +230,7 @@ class CheckerSuite(unittest.TestCase):
     # def test26(self):
     #     input = """
     #         class Shape {
-    #             bool a = 3 == false;
+    #             boolean a = 3 == false;
     #         }
     #     """
     #     expect = """Type Mismatch In Expression: BinaryOp(==,IntLit(3),BooleanLit(False))"""
@@ -395,69 +395,76 @@ class CheckerSuite(unittest.TestCase):
     #     expect = """"""
     #     self.assertTrue(TestChecker.test(input, expect, 441))
 
-    # def test42(self):
-    #     input = """
-    #         class Shape {
-    #             int foo(int cond) {
-    #                 if cond then
-    #                     return 5;
-    #             }
-    #         }
-    #     """
-    #     expect = """Type Mismatch In Statement: If(Id(cond),Return(IntLit(5)))"""
-    #     self.assertTrue(TestChecker.test(input, expect, 442))
+    def test42(self):
+        input = """
+            class Shape {
+                int foo(int cond) {
+                    if cond then
+                        return 5;
+                }
+            }
+        """
+        expect = """Type Mismatch In Statement: If(Id(cond),Return(IntLit(5)))"""
+        self.assertTrue(TestChecker.test(input, expect, 442))
 
-    # def test43(self):
-    #     input = """
-    #         class Shape {
-    #             Rect r;
-    #         }
+    def test43(self):
+        input = """
+            class Shape {
+                Rect r;
+            }
 
-    #         class Rect {
-    #             float w, h;
-    #         }
-    #     """
-    #     expect = """"""
-    #     self.assertTrue(TestChecker.test(input, expect, 443))
+            class Rect {
+                float w, h;
+            }
+        """
+        expect = """"""
+        self.assertTrue(TestChecker.test(input, expect, 443))
 
-    # def test44(self):
-    #     input = """
-    #         class Shape {
-    #             void foo() {
-    #                 Shape s;
-    #             }
-    #         }
-    #     """
-    #     expect = """"""
-    #     self.assertTrue(TestChecker.test(input, expect, 444))
+    def test44(self):
+        input = """
+            class Shape {
+                void foo() {
+                    Shape s;
+                }
+            }
+        """
+        expect = """"""
+        self.assertTrue(TestChecker.test(input, expect, 444))
 
-    # def test45(self):
-    #     input = """
-    #         class Shape {
-    #             void foo() {
-    #                 Shh s;
-    #             }
-    #         }
-    #     """
-    #     expect = """Undeclared Class: Shh"""
-    #     self.assertTrue(TestChecker.test(input, expect, 445))
-
-    def test46(self):
+    def test45(self):
         input = """
             class Shape {
                 void foo() {
                     Shh s;
                 }
             }
+        """
+        expect = """Undeclared Class: Shh"""
+        self.assertTrue(TestChecker.test(input, expect, 445))
 
-            class Shh {
-
+    def test46(self):
+        input = """
+            class Shape {
+                int i;
+                void foo() {
+                    for i := 1 to 5 do {}
+                }
             }
         """
         expect = """"""
         self.assertTrue(TestChecker.test(input, expect, 446))
 
-
+    def test47(self):
+        input = """
+            class Shape {
+                string i;
+                void foo() {
+                    for i := 1 to 5 do {}
+                }
+            }
+        """
+        expect = """Type Mismatch In Statement: For(Id(i),IntLit(1),IntLit(5),True,Block([],[])])"""
+        self.assertTrue(TestChecker.test(input, expect, 447))
 
     # def test50(self):
     #     input = """
