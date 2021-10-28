@@ -6,6 +6,7 @@ from AST import *
 from Visitor import *
 #from Utils import Utils
 from StaticError import *
+import traceback
 
 class MType:
     def __init__(self,partype,rettype):
@@ -52,7 +53,7 @@ def isConstExpr(exp: Expr, baseExp: Expr, refEnv) -> bool:
             return isConstExpr(exp.left, baseExp, refEnv) and isConstExpr(exp.right, baseExp, refEnv)
     return False
 
-def getCheckExprType(exp: Expr, baseExp: Expr, refEnv, isClassMem: bool = False) -> Type:
+def getCheckExprType(exp: Expr, baseExp: Expr, refEnv, isClassMem: bool = False, isVar: bool = False) -> Type:
     if isinstance(exp, Literal):
         if type(exp) is IntLiteral:
             return IntType()
@@ -62,26 +63,35 @@ def getCheckExprType(exp: Expr, baseExp: Expr, refEnv, isClassMem: bool = False)
             return BoolType()
         elif type(exp) is StringLiteral:
             return StringType()
+        elif type(exp) is ArrayLiteral:
+            return ArrayType(len(exp.value), getCheckExprType(exp.value[0], exp.value[0], refEnv))
         
-
+    # find Id, return its type
     elif isinstance(exp, Id):
         ##print("-"*4 + "type of %s" % exp.name + " = " + str(refEnv[exp.name]['type']))
         if isClassMem:
             return refEnv[exp.name]['type']
-            pass
         else:
             #print("---- in getCheckExprType, exp = " + str(exp))
             printDict(refEnv,4)
-            if exp.name in refEnv['global'][refEnv['current'].name]:
-                return refEnv['global'][refEnv['current'].name][exp.name]['type']
-            else:
+            if exp.name in refEnv['local']:
                 return refEnv['local'][exp.name]['type']
+            elif exp.name in refEnv['global'][refEnv['current'].name]:
+                return refEnv['global'][refEnv['current'].name][exp.name]['type']
+            elif exp.name in refEnv['global']:
+                return ClassType(exp)
+            elif not isVar:
+                ##print("~"*12 + str(exp))
+                traceback.print_stack()
+                raise Undeclared(Class(),exp.name)
+            else:
+                raise Undeclared(Variable(),exp.name)
     
     
     else:
         if type(exp) is BinaryOp:
-            t1 = getCheckExprType(exp.left, baseExp, refEnv)
-            t2 = getCheckExprType(exp.right, baseExp, refEnv)
+            t1 = getCheckExprType(exp.left, baseExp, refEnv, isClassMem, isVar)
+            t2 = getCheckExprType(exp.right, baseExp, refEnv, isClassMem, isVar)
             op = exp.op
 
             ##print("here!!!! t1 = " + str(t1) + " and t1 equals IntType? %s" % (type(t1) == IntType) + " | t2 = " + str(t2))
@@ -120,7 +130,34 @@ def getCheckExprType(exp: Expr, baseExp: Expr, refEnv, isClassMem: bool = False)
                     raise TypeMismatchInExpression(exp)
                 else:
                     return BoolType()
-            
+
+            elif op in ['^']:
+                #print("-"*8 + "type(t1) = %s | type(t2) = %s" % (type(t1),type(t2)) )
+                if type(t1) is not StringType or type(t2) is not StringType:
+                    raise TypeMismatchInExpression(exp)
+                else:
+                    return StringType()
+
+        elif type(exp) is FieldAccess:
+            t_obj = getCheckExprType(exp.obj, exp.obj, refEnv)
+            t_fieldName = getCheckExprType(exp.fieldname, exp.fieldname, refEnv, isClassMem)
+
+            if type(t_obj) is not ClassType:
+                raise TypeMismatchInExpression(baseExp)
+                
+            return refEnv['global'][refEnv['current']][t_fieldName]['type']
+
+        elif type(exp) is Assign:
+            lhsType = getCheckExprType(exp.lhs, exp.lhs, refEnv)
+            rhsType = getCheckExprType(exp.exp, exp.exp, refEnv, isClassMem=True)
+
+            #print("-"*4 + "in getCheckExprType ```` Assign, lhsType = %s | rhsType = %s" % (lhsType, rhsType))
+
+            if type(lhsType) is not type(rhsType):
+                raise TypeMismatchInStatement(exp)
+
+
+
 
 def getCheckInitType(constDecl: ConstDecl, expL: Expr, baseExpL: Expr, expR: Expr, baseExpR: Expr, refEnv, isClassMem: bool = False) -> Type:
 
@@ -365,10 +402,10 @@ class StaticChecker(BaseVisitor):
             'local': {}
         }
 
-        mthdRefEnv['local']['isParam'] = True
+        mthdRefEnv['local']['_isParam'] = True
         # visit param: List[VarDecl]
         [self.visit(param, mthdRefEnv) for param in ctx.param]
-        mthdRefEnv['local']['isParam'] = False
+        mthdRefEnv['local']['_isParam'] = False
 
 
         self.visit(ctx.body, mthdRefEnv)
@@ -403,15 +440,21 @@ class StaticChecker(BaseVisitor):
 
         if 'local' in refEnv:
             if varName in refEnv['local']:
-                if refEnv['local']['isParam']:
+                if refEnv['local']['_isParam']:
                     raise Redeclared(Parameter(), varName)
                 else:
                     raise Redeclared(Variable(), varName)
 
-            refEnv['local'][varName] = {
-                'type': varType,
-                'init': varInit
-            }
+            if varInit:
+                getCheckExprType(varInit, varInit, refEnv)
+                refEnv['local'][varName] = {
+                    'type': varType,
+                    'init': varInit
+                }
+            else:
+                refEnv['local'][varName] = {
+                    'type': varType
+                }
         #else:
             #refEnv['global'][refEnv['current']]
 
@@ -470,19 +513,37 @@ class StaticChecker(BaseVisitor):
         return ctx
     
     def visitFieldAccess(self, ctx, refEnv):
+        obj = ctx.obj
+        fieldName = ctx.fieldname
 
-        return None
+        # if type(getCheckExprType(obj, obj, refEnv, isClassMem=True)) is not ClassType:
+        #     raise TypeMismatchInExpression(ctx)
+
+        #getCheckExprType(ctx)
+    
+        return refEnv['global'][refEnv['current']][fieldName.name]
 
     def visitCallExpr(self, ctx, refEnv):
         return None
     
     def visitNewExpr(self, ctx, refEnv):
+        className = ctx.classname
+        params = ctx.param
+
+        if className.name not in refEnv['global']:
+            raise Undeclared(Class(),className.name)
+
         return None
     
     def visitId(self, ctx, refEnv):
         return ctx
     
     def visitArrayCell(self, ctx, refEnv):
+        arrType = getCheckExprType(ctx.arr, ctx.arr, refEnv)
+
+        if type(arrType) is not ArrayType:
+            raise TypeMismatchInExpression(ctx)
+
         return None
 
 
@@ -531,33 +592,38 @@ class StaticChecker(BaseVisitor):
     
     def visitIf(self, ctx, refEnv):
         cond = self.visit(ctx.expr, refEnv)
-        if type(getCheckExprType(cond, cond, refEnv)) is not BoolType:
+        if type(getCheckExprType(cond, cond, refEnv, isVar=True)) is not BoolType:
             raise TypeMismatchInStatement(ctx)
 
         return None
     
     def visitFor(self, ctx, refEnv):
-        refEnv['global'][refEnv['current'].name]['isInLoop'] = True
+        refEnv['global'][refEnv['current'].name]['_isInLoop'] = True
         i = ctx.id
         exp1 = ctx.expr1
         exp2 = ctx.expr2
+
+        iType = getCheckExprType(i, i, refEnv, isVar=True)
+        e1Type = getCheckExprType(exp1, exp1, refEnv, isVar=True)
+        e2Type = getCheckExprType(exp2, exp2, refEnv, isVar=True)
+
+        if type(iType) is not IntType or type(e1Type) is not IntType or type(e2Type) is not IntType:
+            #print("in For, iType = " + str(iType))
+            raise TypeMismatchInStatement(ctx)
 
         if i.name not in refEnv['local']:
             if i.name not in refEnv['global'][refEnv['current'].name]:
                 raise Undeclared(Identifier(),i.name)
 
-        if type(getCheckExprType(i, i, refEnv)) is not IntType:
-            raise TypeMismatchInStatement(ctx)
-
         return None
     
     def visitContinue(self, ctx, refEnv):
-        if 'isInLoop' not in refEnv:
+        if '_isInLoop' not in refEnv or not refEnv['_isInLoop']:
             raise MustInLoop(ctx)
         return
     
     def visitBreak(self, ctx, refEnv):
-        if 'isInLoop' not in refEnv:
+        if '_isInLoop' not in refEnv or not refEnv['_isInLoop']:
             raise MustInLoop(ctx)
         return
 
@@ -565,9 +631,22 @@ class StaticChecker(BaseVisitor):
         return ctx
     
     def visitAssign(self, ctx, refEnv):
+        lhsType = getCheckExprType(ctx.lhs, ctx.lhs, refEnv)
+        rhsType = getCheckExprType(ctx.exp, ctx.exp, refEnv)
+
+        #print("-"*4 + "in Assign, lhsType = %s | rhsType = %s" % (lhsType, rhsType))
+        traceback.print_stack()
+
+        if type(lhsType) is not type(rhsType):
+            raise TypeMismatchInStatement(ctx)
+
         return None
     
     def visitCallStmt(self, ctx, refEnv):
-        return None
-    
+        obj = ctx.obj
+        methodName = ctx.method
+        params = ctx.param
 
+        if type(getCheckExprType(obj, obj, refEnv)) is not ClassType:
+            raise TypeMismatchInStatement(ctx)
+        return None

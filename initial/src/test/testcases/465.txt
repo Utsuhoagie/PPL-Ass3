@@ -1,0 +1,8 @@
+
+            class Shape {
+                int i, a, b;            
+                void foo() {
+                    for i := a to b do {}
+                } 
+            }
+        

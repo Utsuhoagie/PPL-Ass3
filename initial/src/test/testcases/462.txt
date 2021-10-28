@@ -1,0 +1,14 @@
+
+            class Shape {
+                float i;
+                
+                void foo(int i, j) {
+                    for i := 1 to 5 do {
+                        for j := i to 10 do {
+                            if (j % 2 == 0 && j > 6) then
+                                break;
+                        }
+                    }
+                } 
+            }
+        

@@ -1,0 +1,9 @@
+
+            class Shape {
+                string a;
+                int b;
+                void foo() {
+                    string c = a^b;
+                } 
+            }
+        

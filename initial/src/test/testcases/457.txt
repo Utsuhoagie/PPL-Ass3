@@ -1,0 +1,11 @@
+
+            class Shape {
+                string a = "afasgsd";
+                string b = "asdd";
+                string c = "fafsasd";
+                void foo() {
+                    string d;
+                    d := a^b^b^c^c^a;
+                } 
+            }
+        

@@ -1,0 +1,10 @@
+
+            class Shape {
+                int a;
+                int b;
+                int[3] arr = {1,2,3};
+                void foo() {
+                    a := b[0];
+                } 
+            }
+        

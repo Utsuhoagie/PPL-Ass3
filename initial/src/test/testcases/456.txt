@@ -1,0 +1,10 @@
+
+            class Shape {
+                int a;
+                float b;
+                void foo() {
+                    boolean c;
+                    c := a == b;
+                } 
+            }
+        

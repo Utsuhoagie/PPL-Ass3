@@ -1,0 +1,13 @@
+
+            class Shape {
+                Thing b;
+                void foo() {
+                    Thing d;
+                    d := bf;
+                } 
+            }
+
+            class Thing {
+
+            }
+        

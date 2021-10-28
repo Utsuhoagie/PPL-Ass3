@@ -1,0 +1,14 @@
+
+            class Shape {
+                string a;
+                Thing b;
+                void foo() {
+                    string d;
+                    d := a^b;
+                } 
+            }
+
+            class Thing {
+
+            }
+        

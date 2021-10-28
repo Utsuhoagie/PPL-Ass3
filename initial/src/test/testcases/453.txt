@@ -1,0 +1,10 @@
+
+            class Shape {
+                int a;
+                int b;
+                void foo() {
+                    int c;
+                    c := a*b;
+                } 
+            }
+        

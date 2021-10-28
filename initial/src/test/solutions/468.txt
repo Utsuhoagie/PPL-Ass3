@@ -1,0 +1,1 @@
+Type Mismatch In Statement: AssignStmt(Id(a),ArrayCell(Id(b),IntLit(0)))

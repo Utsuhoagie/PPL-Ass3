@@ -1,0 +1,7 @@
+
+            class Shape {
+                string a;
+                string b;
+                string c = a^b;
+            }
+        

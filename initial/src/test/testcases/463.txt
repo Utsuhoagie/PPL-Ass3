@@ -1,0 +1,9 @@
+
+            class Shape {                
+                void foo() {
+                    for i := 1 to 5 do {
+
+                    }
+                } 
+            }
+        

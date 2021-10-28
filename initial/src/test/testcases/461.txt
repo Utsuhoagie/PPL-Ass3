@@ -1,0 +1,11 @@
+
+            class Shape {
+                
+                void foo() {
+                    float i;
+                    for i := 1 to 5 do {
+                        continue;
+                    }
+                } 
+            }
+        
